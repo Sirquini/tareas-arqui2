@@ -14,6 +14,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
@@ -34,6 +35,7 @@ public:
     QTabWidget *tab_text;
     QWidget *tab;
     QVBoxLayout *verticalLayout;
+    QLabel *label;
     QSpinBox *spinBox;
     QPlainTextEdit *text_in;
     QPushButton *Traduction;
@@ -61,6 +63,11 @@ public:
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        label = new QLabel(tab);
+        label->setObjectName(QString::fromUtf8("label"));
+
+        verticalLayout->addWidget(label);
+
         spinBox = new QSpinBox(tab);
         spinBox->setObjectName(QString::fromUtf8("spinBox"));
         spinBox->setMinimum(1);
@@ -113,6 +120,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         tab_text->setToolTip(QApplication::translate("GuiArqui2", "<html><head/><body><p><br/></p></body></html>", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        label->setText(QApplication::translate("GuiArqui2", "Linea de inicio del programa:", 0, QApplication::UnicodeUTF8));
         text_in->setPlainText(QApplication::translate("GuiArqui2", "Enter your code here", 0, QApplication::UnicodeUTF8));
         Traduction->setText(QApplication::translate("GuiArqui2", "Traducir", 0, QApplication::UnicodeUTF8));
         tab_text->setTabText(tab_text->indexOf(tab), QApplication::translate("GuiArqui2", "Input", 0, QApplication::UnicodeUTF8));

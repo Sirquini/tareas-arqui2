@@ -29,6 +29,13 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Linea de inicio del programa:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QSpinBox" name="spinBox">
           <property name="minimum">
            <number>1</number>
