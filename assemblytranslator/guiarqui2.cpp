@@ -180,9 +180,14 @@ QString translate(QString trans,int empezar)
         }
         /* Probicionalmente revisamos el read y show,
          * con direccion de memoria, i.e. read 1 o show 2 */
-        else
+        else if (linea == "110" || linea == "111")
         {
             linea += transform(std::stoi(basecode[i][1]), 13);
+        }
+        /* En caso de que la informacion no se reconosca */
+        else
+        {
+            linea = "XXXXXXXXXXXXXXXX";
         }
         linea += "\n";
         text_out += linea;
