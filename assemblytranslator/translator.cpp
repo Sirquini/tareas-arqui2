@@ -12,8 +12,8 @@ typedef std::unordered_map<std::string, std::string> stringmap;
 std::vector<std::string> GetWords(std::string instruc)
 {
 	std::vector<std::string> words;
-	char *dup = strdup(instruc.c_str());
-    char *token=strtok(dup," :,()");
+	char *inst = strdup(instruc.c_str());
+    char *token=strtok(inst," :,()");
   	while (token != NULL)
   	{
 	 	words.push_back(token);  	   
