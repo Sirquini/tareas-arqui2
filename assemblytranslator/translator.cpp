@@ -8,6 +8,7 @@
 
 /* Definicion del tipo de dato para el diccionario de palabras */
 typedef std::unordered_map<std::string, std::string> stringmap;
+typedef std::unordered_map<std::string, int> strintmap;
 
 std::vector<std::string> GetWords(std::string instruc)
 {
@@ -95,19 +96,33 @@ int main(int argc, char const *argv[])
 		{"mult", "00010"},
 		{"slt", "00100"}
 	});
+
+	/* Mapa con las etiquetas y su valor */
+	strintmap labeldic;
+
+	/* Contenedor del texto a traducir separado por linea y tokens */
+	std::vector<std::vector<std::string> > basecode; 
+	int basecode_size; 
+
 	std::string instruction;
 	std::ifstream text;
   	text.open ("testinput.txt", std::ifstream::in);
 
+  	/* Convertimos la entrada de texto a un formato manipulable */
 	while(std::getline (text,instruction))
 	{
-		std::vector<std::string> deco;
-		deco = GetWords(instruction);
-		for (int i = 0; i < deco.size(); ++i)
-		{
-			std::cout<<deco[i]<<"  ";
-		}
-		std::cout<<std::endl;
+		basecode.push_back(GetWords(instruction));
 	}
+
+	/* Escaneamos la entrada en busca de etiquetas */
+	basecode_size = basecode.size();
+	for (int i = 0; i < basecode_size; ++i)
+	{
+		if (opcodedic.count(basecode[i][0]) == 0)
+		{
+			labeldic[basecode[i][0]] = i;
+		}
+	}
+
 	return 0;
 }
