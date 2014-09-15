@@ -59,7 +59,7 @@ std::string transform(int numero, int nbits)
     return base;
 }
 
-QString translate(QString trans)
+QString translate(QString trans,int empezar)
 {
     // Declaramos el diccionario a usar para la traduccion con sus respectivas llaves, valores.
     stringmap opcodedic ({
@@ -109,10 +109,10 @@ QString translate(QString trans)
 
     /* Contenedor del texto a traducir separado por linea y tokens */
     std::vector<std::vector<std::string> > basecode;
-    int basecode_size, startpos = 1;
+    int basecode_size, startpos = empezar;
 
     /* Texto de entrada */
-    std::ifstream text;
+   // std::ifstream text;
     /* Texto de salida */
     std::string text_out = "";
 
@@ -196,8 +196,9 @@ QString translate(QString trans)
 void GuiArqui2::on_Traduction_clicked()
 {
     QString algo;
+    int empezar = ui->spinBox->value();
     algo = ui->text_in->toPlainText();
-    QString text_disp = translate(algo);
+    QString text_disp = translate(algo,empezar);
     ui->text_out->setText(text_disp);
 
 }

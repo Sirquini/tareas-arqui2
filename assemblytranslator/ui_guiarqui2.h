@@ -17,6 +17,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
+#include <QtGui/QSpinBox>
 #include <QtGui/QTabWidget>
 #include <QtGui/QTextBrowser>
 #include <QtGui/QToolBar>
@@ -33,6 +34,7 @@ public:
     QTabWidget *tab_text;
     QWidget *tab;
     QVBoxLayout *verticalLayout;
+    QSpinBox *spinBox;
     QPlainTextEdit *text_in;
     QPushButton *Traduction;
     QWidget *tab_2;
@@ -59,6 +61,12 @@ public:
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        spinBox = new QSpinBox(tab);
+        spinBox->setObjectName(QString::fromUtf8("spinBox"));
+        spinBox->setMinimum(1);
+
+        verticalLayout->addWidget(spinBox);
+
         text_in = new QPlainTextEdit(tab);
         text_in->setObjectName(QString::fromUtf8("text_in"));
 
