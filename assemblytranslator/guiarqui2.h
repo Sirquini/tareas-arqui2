@@ -29,7 +29,7 @@ private slots:
     void on_Traduction_clicked();
 
 
-    void on_text_in_textChanged();
+    //void on_text_in_textChanged();
 
 private:
     Ui::GuiArqui2 *ui;
