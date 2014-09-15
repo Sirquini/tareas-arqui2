@@ -2,28 +2,25 @@
 #include <string>
 #include <unordered_map>
 #include <sstream>
+#include <cstring>
 #include <vector>
+#include <fstream>  
+
 /* Definicion del tipo de dato para el diccionario de palabras */
 typedef std::unordered_map<std::string, std::string> stringmap;
 
 std::vector<std::string> GetWords(std::string instruc)
 {
 	std::vector<std::string> words;
-    std::istringstream iss(instruc);
-    while(iss)
-    {
-        std::string sub;
-        iss >> sub;
-        if (sub.back() == ',' || sub.back() == ':' )
-        {
-        	sub.pop_back();
-        }
-        words.push_back(sub);        
-    }
-    words.pop_back();
-    return words;
+	char *dup = strdup(instruc.c_str());
+    char *token=strtok(dup," :,()");
+  	while (token != NULL)
+  	{
+	 	words.push_back(token);  	   
+	    token = strtok (NULL, " ,.-()");
+  	}
+  	return words;
 }
-
 std::string transform(int numero, int nbits)
 {
 	std::string base = "";
@@ -98,21 +95,18 @@ int main(int argc, char const *argv[])
 		{"slt", "00100"}
 	});
 	std::string instruction;
-	while(std::getline (std::cin,instruction))
+	std::ifstream text;
+  	text.open ("testinput.txt", std::ifstream::in);
+
+	while(std::getline (text,instruction))
 	{
 		std::vector<std::string> deco;
 		deco = GetWords(instruction);
 		for (int i = 0; i < deco.size(); ++i)
 		{
-			std::cout<<deco[i]<<std::endl;
+			std::cout<<deco[i]<<"  ";
 		}
+		std::cout<<std::endl;
 	}
-
-
-	std::cout << "Hello World!" << std::endl;
-	std::cout << transform(1,1) << std::endl;
-	std::cout << transform(1,5) << std::endl;
-	std::cout << transform(4,5) << std::endl;
-	std::cout << transform(3,8) << std::endl;
 	return 0;
 }
