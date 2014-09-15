@@ -1,9 +1,30 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-
+#include <sstream>
+#include <vector>
 /* Definicion del tipo de dato para el diccionario de palabras */
 typedef std::unordered_map<std::string, std::string> stringmap;
+
+std::vector<std::string> GetWords(std::string instruc)
+{
+	std::vector<std::string> words;
+    std::istringstream iss(instruc);
+    while(iss)
+    {
+        std::string sub;
+        iss >> sub;
+        if (sub.back() == ',' || sub.back() == ':' )
+        {
+        	sub.pop_back();
+        }
+        words.push_back(sub);        
+    }
+    words.pop_back();
+    return words;
+}
+
+
 
 int main(int argc, char const *argv[])
 {
@@ -49,9 +70,16 @@ int main(int argc, char const *argv[])
 		{"mult", "00010"},
 		{"slt", "00100"}
 	});
+	std::string instruction;
+	while(std::getline (std::cin,instruction))
+	{
+		std::vector<std::string> deco;
+		deco = GetWords(instruction);
+		for (int i = 0; i < deco.size(); ++i)
+		{
+			std::cout<<deco[i]<<std::endl;
+		}
+	}
 
-
-
-	std::cout << "Hello World!" << std::endl;
 	return 0;
 }
