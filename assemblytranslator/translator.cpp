@@ -17,10 +17,11 @@ std::vector<std::string> GetWords(std::string instruc)
   	while (token != NULL)
   	{
 	 	words.push_back(token);  	   
-	    token = strtok (NULL, " ,.-()");
+	    token = strtok (NULL, " :,()");
   	}
   	return words;
 }
+
 std::string transform(int numero, int nbits)
 {
 	std::string base = "";
