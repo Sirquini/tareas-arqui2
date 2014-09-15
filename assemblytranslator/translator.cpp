@@ -4,7 +4,8 @@
 #include <sstream>
 #include <cstring>
 #include <vector>
-#include <fstream>  
+#include <fstream>
+#include <utility>
 
 /* Definicion del tipo de dato para el diccionario de palabras */
 typedef std::unordered_map<std::string, std::string> stringmap;
@@ -50,7 +51,6 @@ std::string transform(int numero, int nbits)
 	}
 	return base;
 }
-
 
 int main(int argc, char const *argv[])
 {
@@ -102,27 +102,85 @@ int main(int argc, char const *argv[])
 
 	/* Contenedor del texto a traducir separado por linea y tokens */
 	std::vector<std::vector<std::string> > basecode; 
-	int basecode_size; 
+	int basecode_size, startpos = 1; 
 
-	std::string instruction;
+	/* Texto de entrada */
 	std::ifstream text;
-  	text.open ("testinput.txt", std::ifstream::in);
+	/* Texto de salida */
+	std::string text_out = "";
 
   	/* Convertimos la entrada de texto a un formato manipulable */
+	std::string instruction;
+  	text.open ("testinput.txt", std::ifstream::in);
 	while(std::getline (text,instruction))
 	{
 		basecode.push_back(GetWords(instruction));
 	}
+	text.close();
 
-	/* Escaneamos la entrada en busca de etiquetas */
+	/* Escaneamos la entrada en busca de etiquetas  las agregamos al
+	 * diccionario y las eliminamos del contenedor. */
 	basecode_size = basecode.size();
 	for (int i = 0; i < basecode_size; ++i)
 	{
 		if (opcodedic.count(basecode[i][0]) == 0)
 		{
 			labeldic[basecode[i][0]] = i;
+			basecode[i].erase(basecode[i].begin());
 		}
 	}
+
+	/* Combertimos las lineas en su eqivalente en binario */
+
+	for (int i = 0; i < basecode_size; ++i)
+	{
+		std::string linea = opcodedic[basecode[i][0]];
+
+		/* Revisamos las instrucciones tipo R */
+		if (linea == "000")
+		{
+			linea += regdic[basecode[i][2]];
+			linea += regdic[basecode[i][1]];
+			linea += functdic[basecode[i][0]];
+		}
+		/* Revisamos el branch */
+		else if (linea == "011")
+		{
+			linea += regdic[basecode[i][1]];
+			linea += regdic[basecode[i][2]];
+			linea += transform(labeldic[basecode[i][3]]-i-1+startpos, 5);
+		}
+		/* Revisamos el addi */
+		else if (linea == "101")
+		{
+			linea += regdic[basecode[i][2]];
+			linea += regdic[basecode[i][1]];
+			linea += transform(std::stoi(basecode[i][3]), 5);
+		}
+		/* Revisamos el sw y lw */
+		else if (linea == "001" || linea == "010")
+		{
+			linea += regdic[basecode[i][3]];
+			linea += regdic[basecode[i][1]];
+			linea += transform(std::stoi(basecode[i][2]), 5);
+		}
+		/* Revisamos el jump */
+		else if (linea == "100")
+		{
+			linea += transform(labeldic[basecode[i][1]]+startpos, 13);
+		}
+		/* Probicionalmente revisamos el read y show,
+		 * con direccion de memoria, i.e. read 1 o show 2 */
+		else
+		{
+			linea += transform(std::stoi(basecode[i][1]), 13);
+		}
+		linea += "\n";
+		text_out += linea;
+	}
+
+	/* Mostramos en pantalla el codigo en pantalla */
+	std::cout << text_out << std::endl;
 
 	return 0;
 }
