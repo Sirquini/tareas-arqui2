@@ -147,7 +147,7 @@ int main(int argc, char const *argv[])
 		{
 			linea += regdic[basecode[i][1]];
 			linea += regdic[basecode[i][2]];
-			linea += transform(labeldic[basecode[i][3]]-i-1+startpos, 5);
+			linea += transform(labeldic[basecode[i][3]]-i-1, 5);
 		}
 		/* Revisamos el addi */
 		else if (linea == "101")
