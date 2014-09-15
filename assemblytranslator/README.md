@@ -1,15 +1,15 @@
 Autores: 
--- Santiago Quintero
--- Edgar M. Amézquita
+- Santiago Quintero
+- Edgar M. Amézquita
 
 Translator
 
 ## Compilando el programa:
 Para compilar este programa se requiere QT version 5.
 Generar el Makefile ejecutando:
-qmake
+`qmake`
 Compilar haciendo uso del comando:
-make
+`make`
 El Programa adjunto hace uso del compilador clang++ con
 el estandar c++11 (utilizando el parametro -std=c++11).
 
@@ -21,5 +21,5 @@ Se oprime el botón de traducir y se cambia a la pestaña Output para ver el tex
 
 ## Limpiando el espacio de trabajo
 Usar el comando:
-make clean
+`make clean`
 Esto eliminará el ejecutable, junto con los archivos objeto. 
