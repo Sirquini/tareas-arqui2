@@ -24,6 +24,33 @@ std::vector<std::string> GetWords(std::string instruc)
     return words;
 }
 
+std::string transform(int numero, int nbits)
+{
+	std::string base = "";
+	int realsize;
+
+	do
+	{
+		if ((numero & 1) == 0 )
+			base = "0" + base;
+		else
+			base = "1" + base;
+		numero >>= 1; 
+	} while( numero );
+
+	realsize = nbits - base.length();
+
+	if (realsize > 0)
+	{
+		std::string prefix = "0";
+		for (int i = 1; i < realsize; ++i)
+		{
+			prefix.push_back('0');
+		}
+		base = prefix + base;
+	}
+	return base;
+}
 
 
 int main(int argc, char const *argv[])
@@ -81,5 +108,11 @@ int main(int argc, char const *argv[])
 		}
 	}
 
+
+	std::cout << "Hello World!" << std::endl;
+	std::cout << transform(1,1) << std::endl;
+	std::cout << transform(1,5) << std::endl;
+	std::cout << transform(4,5) << std::endl;
+	std::cout << transform(3,8) << std::endl;
 	return 0;
 }

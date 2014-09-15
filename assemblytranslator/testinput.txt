@@ -1,0 +1,18 @@
+lw $t0, 0($zero)
+lw $t1, 2($zero)
+lw $t2, 4($zero)
+lw $s0, 6($zero)
+addi $t4, $zero, 1
+lw $t5, 12($zero)
+beq $t0, $t4, noc [3]
+mult $s0, $t5
+lw $t6, 10($zero)
+add $s0, $t6
+noc: addi $t3, $zero, 0
+add $t3, $s0
+lw $t7, 14($zero)
+slt $t3, $t7
+beq $t3, $zero, nom
+addi $s1, $zero, 1
+nom: addi $t3, $zero, 0
+add $t3, $s0

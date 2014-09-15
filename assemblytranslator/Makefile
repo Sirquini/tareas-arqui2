@@ -2,7 +2,7 @@
 CC=clang++
 
 # Compiler flags
-CFLAGS=--Wall -std=c++11
+CFLAGS=-Wall -std=c++11
 
 all: translator
 
