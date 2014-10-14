@@ -1,7 +1,7 @@
-lw $t0, 0($zero)
-lw $t1, 2($zero)
-lw $t2, 4($zero)
-lw $s0, 6($zero)
+addi $t0, $zero, 1
+addi $t1, $zero, 1
+addi $t2, $zero, 1
+addi $s0, $zero, 1
 addi $t4, $zero, 1
 lw $t5, 12($zero)
 beq $t0, $t4, noc

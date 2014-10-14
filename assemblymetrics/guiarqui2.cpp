@@ -150,7 +150,7 @@ QString translate(QString trans,int empezar)
         {
             linea += regdic[basecode[i][2]];
             linea += regdic[basecode[i][1]];
-            linea += functdic[basecode[i][3]];
+            linea += functdic[basecode[i][0]];
         }
         /* Revisamos el branch */
         else if (linea == "011")
@@ -198,7 +198,7 @@ QString translate(QString trans,int empezar)
     return qdisp;
 }
 
-st::vector<int> calcularCiclos(QString trans)
+std::vector<int> calcularCiclos(QString trans)
 {
     // Declaramos el diccionario a usar para la traduccion con sus respectivas llaves, valores.
     strintmap opcodedic ({
@@ -349,7 +349,7 @@ st::vector<int> calcularCiclos(QString trans)
                 break;
             /* Revisamos BEQ */
             case 7:
-                programCounter = (basecode[programCounter][1] == basecode[programCounter][2])? labeldic[basecode[programCounter][3]] : programCounter + 1;
+                programCounter = (regdic[basecode[programCounter][1]] == regdic[basecode[programCounter][2]])? labeldic[basecode[programCounter][3]] : programCounter + 1;
                 CRP[0] += 3;
                 break;
             /* Revisamos ADDi */
@@ -373,7 +373,7 @@ st::vector<int> calcularCiclos(QString trans)
             default:
                 programCounter = basecode_size;
         }
-         if (linea != 7 || linea != 9)
+        if (linea != 7 && linea != 9)
         {
             ++programCounter;
         }
