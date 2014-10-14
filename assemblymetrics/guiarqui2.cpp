@@ -150,7 +150,7 @@ QString translate(QString trans,int empezar)
         {
             linea += regdic[basecode[i][2]];
             linea += regdic[basecode[i][1]];
-            linea += functdic[basecode[i][0]];
+            linea += functdic[basecode[i][3]];
         }
         /* Revisamos el branch */
         else if (linea == "011")
@@ -197,16 +197,204 @@ QString translate(QString trans,int empezar)
     QString qdisp = QString::fromStdString(text_out);
     return qdisp;
 }
-float calcularMulti(float frec)
-{
 
-    return frec;
+st::vector<int> calcularCiclos(QString trans)
+{
+    // Declaramos el diccionario a usar para la traduccion con sus respectivas llaves, valores.
+    strintmap opcodedic ({
+        {"add", 0},
+        {"sub", 1},
+        {"div", 2},
+        {"mult", 3},
+        {"slt", 4},
+        {"lw", 5},
+        {"sw", 6},
+        {"beq", 7},
+        {"addi", 8},
+        {"j", 9},
+        {"read", 10},
+        {"show", 10},
+        {"end", 11}
+    });
+
+    strintmap regdic ({
+        {"$zero", 0},
+        {"$at",   0},
+        {"$v0",   0},
+        {"$v1",   0},
+        {"$t0",   0},
+        {"$t1",   0},
+        {"$t2",   0},
+        {"$t3",   0},
+        {"$t4",   0},
+        {"$t5",   0},
+        {"$t6",   0},
+        {"$t7",   0},
+        {"$s0",   0},
+        {"$s1",   0},
+        {"$s2",   0},
+        {"$s3",   0}
+    });
+
+    /* Simulacion de la memoria para datos */
+    std::vector<int> memoria (64, 0);
+
+    /* Mapa con las etiquetas y su valor */
+    strintmap labeldic;
+
+    /* Variable que simula el PC */
+    int programCounter = 0;
+
+    /* Contadores con el CRP para 0 - multiciclo y 1 - monociclo */
+    std::vector<int> CRP(2,0);
+
+    /* Contenedor del texto a traducir separado por linea y tokens */
+    std::vector<std::vector<std::string> > basecode;
+    int basecode_size;
+
+    /* Texto de entrada */
+   // std::ifstream text;
+    /* Texto de salida */
+    std::string text_out = "";
+
+    /* Convertimos la entrada de texto a un formato manipulable */
+    std::string instruction;
+    QString instruc;
+    QTextStream in(&trans);
+    instruc=in.readLine();
+    while( instruc != NULL)
+    {
+        instruction = instruc.toStdString();
+        basecode.push_back(GetWords(instruction));
+        instruc=in.readLine();
+    }
+    /* Escaneamos la entrada en busca de etiquetas  las agregamos al
+     * diccionario y las eliminamos del contenedor. */
+    basecode_size = basecode.size();
+    for (int i = 0; i < basecode_size; ++i)
+    {
+        if (opcodedic.count(basecode[i][0]) == 0)
+        {
+            labeldic[basecode[i][0]] = i;
+            basecode[i].erase(basecode[i].begin());
+        }
+    }
+
+    /* Agregamos un simbolo de terminacion al programa */
+    std::vector<std::string> endlinestring (1, "end");
+    basecode.push_back(endlinestring);
+
+    /* Simulamos las lineas para contar los ciclos */
+
+    while (programCounter < basecode_size)
+    {
+        int linea = opcodedic[basecode[programCounter][0]];
+        switch (linea)
+        {
+            /* Revisamos ADD */
+            case 0:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                    regdic[basecode[programCounter][1]] = regdic[basecode[programCounter][1]] + regdic[basecode[programCounter][2]];
+                }
+                CRP[0] += 4;
+                break;
+            /* Revisamos SUB */
+            case 1:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                    regdic[basecode[programCounter][1]] = regdic[basecode[programCounter][1]] - regdic[basecode[programCounter][2]];
+                }
+                CRP[0] += 4;
+                break;
+            /* Revisamos DIV */
+            case 2:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                    regdic[basecode[programCounter][1]] = regdic[basecode[programCounter][1]] / regdic[basecode[programCounter][2]];
+                }
+                CRP[0] += 4;
+                break;
+            /* Revisamos MULT */
+            case 3:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                    regdic[basecode[programCounter][1]] = regdic[basecode[programCounter][1]] * regdic[basecode[programCounter][2]];
+                }
+                CRP[0] += 4;
+                break;
+            /* Revisamos SLT */
+            case 4:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                    regdic[basecode[programCounter][1]] = (regdic[basecode[programCounter][1]] < regdic[basecode[programCounter][2]]) ? 1 : 0;
+                }
+                CRP[0] += 4;
+                break;
+            /* Revisamos LW */
+            case 5:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                    regdic[basecode[programCounter][1]] = memoria[ std::stoi(basecode[programCounter][2]) + regdic[basecode[programCounter][3]] ];
+                }
+                CRP[0] += 5;
+                break;
+            /* Revisamos SW */
+            case 6:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                     memoria[ std::stoi(basecode[programCounter][2]) + regdic[basecode[programCounter][3]] ] = regdic[basecode[programCounter][1]];
+                }
+                CRP[0] += 4;
+                break;
+            /* Revisamos BEQ */
+            case 7:
+                programCounter = (basecode[programCounter][1] == basecode[programCounter][2])? labeldic[basecode[programCounter][3]] : programCounter + 1;
+                CRP[0] += 3;
+                break;
+            /* Revisamos ADDi */
+            case 8:
+                if (basecode[programCounter][1] != "$zero")
+                {
+                    regdic[basecode[programCounter][1]] = regdic[basecode[programCounter][2]] + std::stoi(basecode[programCounter][3]);
+                }
+                CRP[0] += 4;
+                break;
+            /* Revisamos JUMP */
+            case 9:
+                programCounter = labeldic[basecode[programCounter][1]];
+                CRP[0] += 3;
+                break;
+            /* Revisamos READ o SHOW */
+            case 10:
+                CRP[0] += 3;
+                break;
+            /* En caso de que la instrucion no se reconosca */
+            default:
+                programCounter = basecode_size;
+        }
+         if (linea != 7 || linea != 9)
+        {
+            ++programCounter;
+        }
+        CRP[1] += 1;
+
+        /* Para evitar bucles infinitos*/
+        if(CRP[1] > 1000000) break;
+    }
+
+    /* Retornamos los respectivos CRP */
+    return CRP;
 }
 
-float calcularMono(float frec)
+float calcularMulti(float frec, int CRP)
 {
+    return frec * CRP;
+}
 
-    return frec;
+float calcularMono(float frec, int CRP)
+{
+    return frec * CRP;
 }
 void GuiArqui2::on_Traduction_clicked()
 {
@@ -230,12 +418,16 @@ void GuiArqui2::on_text_in_textChanged()
 
 void GuiArqui2::on_Calcular_clicked()
 {
+    QString inputText;
     float multi = ui->Multi->value();
     float mono = ui->Mono->value();
+    std::vector<int> CRP = {0,0};
     if(multi>mono)
     {
-        multi = calcularMulti(multi);
-        mono = calcularMono(mono);
+        inputText = ui->text_in->toPlainText();
+        CRP = calcularCiclos(inputText);
+        multi = calcularMulti(multi, CRP[0]);
+        mono = calcularMono(mono, CRP[1]);
         ui->Multidsp->display(multi);
         ui->Monodsp->display(mono);
     }
