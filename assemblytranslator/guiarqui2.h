@@ -2,6 +2,7 @@
 #define GUIARQUI2_H
 
 #include <QMainWindow>
+ #include <QMessageBox>
 #include <QtCore>
 #include <QtGui>
 #include <iostream>

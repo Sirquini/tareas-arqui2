@@ -129,7 +129,7 @@ QString translate(QString trans,int empezar)
     }
     /* Escaneamos la entrada en busca de etiquetas  las agregamos al
      * diccionario y las eliminamos del contenedor. */
-    basecode_size = basecode.size();
+    basecode_size = basecode.size();    
     for (int i = 0; i < basecode_size; ++i)
     {
         if (opcodedic.count(basecode[i][0]) == 0)
@@ -197,17 +197,76 @@ QString translate(QString trans,int empezar)
     QString qdisp = QString::fromStdString(text_out);
     return qdisp;
 }
-float calcularMulti(float frec)
+std::vector<float> calcular(std::vector<float> frec, QString txt)
 {
+    // Declaramos el diccionario a usar para saber la latencia de las instrucciones
+    strintmap Timedic({
+        {"add", 4},
+        {"sub", 4},
+        {"div", 4},
+        {"mult", 4},
+        {"slt", 4},
+        {"lw", 4},
+        {"sw", 5},
+        {"beq", 3},
+        {"addi", 4},
+        {"j", 3},
+        {"read", 3},
+        {"show", 3}
+    });
+    /* Contenedor del texto al que se le va a calcular el tiempo separado por linea y tokens */
+    std::vector<std::vector<std::string> > basecode;
+    int basecode_size;
+    float crp = 0.0, ganancia = 0.0;
+     /* Mapa con las instrucciones y sus repeticiones */
+    strintmap instdic({
+        {"add", 0},
+        {"sub", 0},
+        {"div", 0},
+        {"mult", 0},
+        {"slt", 0},
+        {"lw", 0},
+        {"sw", 0},
+        {"beq", 0},
+        {"addi", 0},
+        {"j", 0},
+        {"read", 0},
+        {"show", 0}
+    });
 
+    /* Texto de entrada */
+   // std::ifstream text;
+    /* Texto de salida */
+    std::string text_out = "";
+
+    /* Convertimos la entrada de texto a un formato manipulable */
+    std::string instruction;
+    QString instruc;
+    QTextStream in(&txt);
+    instruc=in.readLine();
+    while( instruc != NULL)
+    {
+        instruction = instruc.toStdString();
+        basecode.push_back(GetWords(instruction));
+        instruc=in.readLine();
+    }
+    basecode_size = basecode.size();   
+
+    for (int i = 0; i < basecode_size; ++i)
+    {
+        instdic[basecode[i][0]] += 1;
+    }
+
+    for (int i = 0; i < basecode_size; ++i)
+    {
+        crp+=instdic[basecode[i][0]]*Timedic[basecode[i][0]];
+    }
+    frec[0] = crp/frec[0];
+    ganancia = (frec[0]/frec[1])*100;
+    frec.push_back(ganancia);
     return frec;
 }
 
-float calcularMono(float frec)
-{
-
-    return frec;
-}
 void GuiArqui2::on_Traduction_clicked()
 {
     QString algo;
@@ -230,22 +289,67 @@ void GuiArqui2::on_text_in_textChanged()
 
 void GuiArqui2::on_Calcular_clicked()
 {
-    float multi = ui->Multi->value();
-    float mono = ui->Mono->value();
-    if(multi>mono)
+    std::vector<float> frecuencias;
+    frecuencias.push_back(ui->Multi->value());
+    frecuencias.push_back(ui->Mono->value());
+    if(frecuencias[0] > frecuencias[1] && frecuencias[1] > 0)
     {
-        multi = calcularMulti(multi);
-        mono = calcularMono(mono);
-        ui->Multidsp->display(multi);
-        ui->Monodsp->display(mono);
+        QString algo;
+        algo = ui->text_in->toPlainText();
+        frecuencias = calcular(frecuencias,algo);
+        ui->Multidsp->display(frecuencias[0]);
+        ui->Monodsp->display(frecuencias[1]);
+    }
+    else if(frecuencias[0] == 0 && frecuencias[1] > 0)
+    {
+        QMessageBox::critical(0, QString("Error"), QString("No introdujo la frecuencia en la multiciclo"), QMessageBox::Ok);
+    }
+    else if(frecuencias[1] > frecuencias[0] || frecuencias[1] == frecuencias[0])
+    {
+        QMessageBox::critical(0, QString("Error"), QString("La frecuencia en multiciclo tiene que ser mayor a la monociclo"), QMessageBox::Ok);
+    }
+    else if(frecuencias[1] == 0 && frecuencias[0] > 0)
+    {
+        QMessageBox::critical(0, QString("Error"), QString("No introdujo la frecuencia en la monociclo"), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::critical(0, QString("Error"), QString("La frecuencia en multiciclo tiene que ser mayor a la monociclo"), QMessageBox::Ok);
+     QMessageBox::critical(0, QString("Error"), QString("No introdujo frecuencias aún"), QMessageBox::Ok);   
     }
  }
 
 void GuiArqui2::on_tcalc_clicked()
 {
-
+    std::vector<float> frecuencias;
+    frecuencias.push_back(ui->Multi->value());
+    frecuencias.push_back(ui->Mono->value());
+    if(frecuencias[0] > frecuencias[1] && frecuencias[1] > 0)
+    {
+        QString algo;
+        int empezar = ui->spinBox->value();
+        algo = ui->text_in->toPlainText();
+        QString text_disp = translate(algo,empezar);
+        ui->text_out->setText(text_disp);
+        frecuencias = calcular(frecuencias,algo);
+        ui->Multidsp->display(frecuencias[0]);
+        ui->Monodsp->display(frecuencias[1]);
+    }
+    else if(frecuencias[0] == 0 && frecuencias[1] > 0)
+    {
+        QMessageBox::critical(0, QString("Error"), QString("No introdujo la frecuencia en la multiciclo"), QMessageBox::Ok);
+    }
+    else if(frecuencias[1] > frecuencias[0] )
+    {
+        QMessageBox::critical(0, QString("Error"), QString("La frecuencia en multiciclo tiene que ser mayor a la monociclo"), QMessageBox::Ok);
+    }
+    else if(frecuencias[1] == 0 && frecuencias[0] > 0)
+    {
+        QMessageBox::critical(0, QString("Error"), QString("No introdujo la frecuencia en la monociclo"), QMessageBox::Ok);
+    }
+    else
+    {
+     QMessageBox::critical(0, QString("Error"), QString("No introdujo frecuencias aún"), QMessageBox::Ok);   
+    }
 }
+
+
