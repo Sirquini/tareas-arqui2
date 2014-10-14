@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
+    <width>472</width>
     <height>587</height>
    </rect>
   </property>
@@ -182,7 +182,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLCDNumber" name="Multidsp"/>
+             <widget class="QLCDNumber" name="Multidsp">
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_9">
@@ -213,6 +217,27 @@
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Ganancia Multi vs Mono</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLCDNumber" name="Gananciamm"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>%</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

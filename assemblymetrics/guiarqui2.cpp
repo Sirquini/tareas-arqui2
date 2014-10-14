@@ -389,12 +389,12 @@ std::vector<int> calcularCiclos(QString trans)
 
 float calcularMulti(float frec, int CRP)
 {
-    return frec * CRP;
+    return  CRP / frec;
 }
 
 float calcularMono(float frec, int CRP)
 {
-    return frec * CRP;
+    return CRP / frec;
 }
 void GuiArqui2::on_Traduction_clicked()
 {
@@ -422,7 +422,19 @@ void GuiArqui2::on_Calcular_clicked()
     float multi = ui->Multi->value();
     float mono = ui->Mono->value();
     std::vector<int> CRP = {0,0};
-    if(multi>mono)
+    if(multi<=mono)
+    {
+        QMessageBox::critical(0, QString("Error"), QString("La frecuencia en multiciclo tiene que ser mayor a la monociclo"), QMessageBox::Ok);        
+    }
+    else if (multi == 0.0)
+    {
+        QMessageBox::critical(0, QString("Error"), QString("La frecuencia en multiciclo tiene que ser mayor a cero"), QMessageBox::Ok);
+    }
+    else if (mono == 0.0)
+    {
+        QMessageBox::critical(0, QString("Error"), QString("La frecuencia en monociclo tiene que ser mayor a cero"), QMessageBox::Ok);
+    }
+    else
     {
         inputText = ui->text_in->toPlainText();
         CRP = calcularCiclos(inputText);
@@ -430,14 +442,13 @@ void GuiArqui2::on_Calcular_clicked()
         mono = calcularMono(mono, CRP[1]);
         ui->Multidsp->display(multi);
         ui->Monodsp->display(mono);
-    }
-    else
-    {
-        QMessageBox::critical(0, QString("Error"), QString("La frecuencia en multiciclo tiene que ser mayor a la monociclo"), QMessageBox::Ok);
+        float ganancia =((multi/mono)-1)*100;
+        ui->Gananciamm->display(ganancia);
     }
  }
 
 void GuiArqui2::on_tcalc_clicked()
 {
-
+    GuiArqui2::on_Traduction_clicked();
+    GuiArqui2::on_Calcular_clicked();
 }
