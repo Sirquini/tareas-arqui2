@@ -1,7 +1,11 @@
-#include <iostream>
+#include "cachegui.h"
+#include <QApplication>
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
-	std::cout << "test memorias" << std::endl;
-	return 0;
+    QApplication a(argc, argv);
+    cachegui w;
+    w.show();
+
+    return a.exec();
 }
