@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QtCore>
 #include <QtGui>
+#include <iostream>
 
 namespace Ui {
 class cachegui;
