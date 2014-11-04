@@ -375,6 +375,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
     std::uniform_int_distribution<int> idist(0, DIR_VIRUTALES - 1); // [0,4095]
     std::uniform_int_distribution<int> odist(0, 1); // [0,1]
     std::uniform_int_distribution<int> ddist(0, 255); // [0,255]
+    std::uniform_int_distribution<int> nueva_dist(256, 511); // [0,255]
 
     /* ins_virtuales[*][x], x: 0 - direccion, 1 - lectura/escritura, 2 - dato */
     std::vector<std::vector<int> > ins_virtuales (accesos, std::vector<int> (3,0));
@@ -404,7 +405,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
     {
         ins_virtuales[i][0] = idist(rgen);
         ins_virtuales[i][1] = odist(rgen);
-        ins_virtuales[i][2] = ddist(rgen);
+        ins_virtuales[i][2] = nueva_dist(rgen);
     }
     std::cout << " Terminado!" << std::endl;
     std::cout << "Generando tabla de traduccion..." << std::endl;
