@@ -58,12 +58,14 @@ public:
 	std::vector<int> read_cache(int direccion)
 	{
 		std::vector<int> result (3, 0);
+		return result;
 
 	}
 
 	std::vector<int> write_cache(int direccion, int dato)
 	{
 		std::vector<int> result (3, 0);
+		return result;
 	}
 
 	~cache();
@@ -76,7 +78,7 @@ int main(int argc, char *argv[])
 		vias,
 		accesos,
 		bloque_size,
-		pagina_size
+		pagina_size,
 		fallos_pagina,
 		fallos_cache;
 
