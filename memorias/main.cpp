@@ -70,7 +70,7 @@ typedef std::vector< std::vector<int> > tipo_vias;
  * el tercer entero es la direccion fisica donde escribir en memoria pricipal,
  * el cuarto entero en adelante es el dato a escribir en memoria principal (write-back).
  */
-class cache
+class Cache
 {
 public:
 	int vias,
@@ -86,7 +86,7 @@ public:
 	tipo_vias LFU_counter;
 
 
-	cache(int a_vias, int a_bloques, int a_bloque_size)
+	Cache(int a_vias, int a_bloques, int a_bloque_size)
 	{
 		vias = a_vias;
 		bloques = a_bloques;
@@ -217,25 +217,30 @@ public:
 		return result;
 	}
 
-	~cache();
+	~Cache();
 };
 
 typedef std::map<int, std::vector<int> > t_tabla;
 
 std::pair<int, int> simulacion(bloques, bloque_size, vias, accesos, pagina_size)
 {
-	int paginas_disco, paginas_mem, fallos_pagina, fallos_cache, bits_offset, div_virt;
+	int paginas_disco, paginas_mem, fallos_pagina, fallos_cache, bits_offset, div_virt, div_fisica;
 
 	std::random_device rseed; // Para numeros aleatorios
 	std::mt19937 rgen(rseed()); // mersenne_twister
 	std::uniform_int_distribution<int> idist(0, DIR_VIRUTALES - 1); // [0,4095]
 	std::uniform_int_distribution<int> odist(0, 1); // [0,1]
 	std::uniform_int_distribution<int> ddist(0, 255); // [0,255]
+	std::uniform_int_distribution<int> mdist(0, paginas_memoria); // [0,paginas_memoria]
 
+	/* ins_virtuales[*][x], x: 0 - direccion, 1 - lectura/escritura, 2 - dato */
 	std::vector<std::vector<int> > ins_virtuales (accesos, std::vector<int> (3,0));
 	std::vector<int> memoria (POS_MEMORIA);
 	std::vector<int> disco (POS_DISCO);
 	t_tabla tabla;
+
+	/* Creamos la cache */
+	Cache mem_cache (vias, bloques, bloque_size);
 
 	/* Inicializacion */
 	paginas_disco = POS_DISCO / pagina_size;
@@ -244,6 +249,7 @@ std::pair<int, int> simulacion(bloques, bloque_size, vias, accesos, pagina_size)
 	fallos_cache = 0;
 	bits_offset = bits_para(pagina_size);
 	div_virt = potencia(bits_offset);// para posterior division
+	div_fisica = potencia(bits_para(bloque_size));// para posterior division
 
 	/* Generar instrucciones virtuales */
 	for (int i = 0; i < accesos; ++i)
@@ -306,11 +312,72 @@ std::pair<int, int> simulacion(bloques, bloque_size, vias, accesos, pagina_size)
 	inputdisc.close();
 
 	/* Iteramos en cada instruccion */
-	int dir_fisica, tmp;
-	std::vector<int> (bloque_size,0);
+	int dir_fisica, tmp, tmp2;
+	std::vector<int> movimiento (bloque_size,0);
+	std::vector<int> respuesta_cache;
 	for (int i = 0; i < accesos; ++i)
 	{
-		/* code */
+		/* Traducimos direccion virtual a fisica */
+		dir_fisica = ins_virtuales[i][0]/div_virt;
+		/* No esta en memoria principal? */
+		if(tabla[dir_fisica][0] == 0)
+		{
+			tabla[dir_fisica][0] = 1;
+			fallos_pagina++; // nuevo fallo de pagina
+			tmp2 = tabla[dir_fisica][2]; // direccion disco
+			/* no esta asigana? */
+			if(tabla[dir_fisica][1] == 1)
+			{
+				tabla[dir_fisica][1] == 0;
+				tmp = mdist(rgen); // nueva asignacion.
+				tabla[dir_fisica][2] = tmp;
+				/* Movemos de disco a memoria */
+			}
+			else tmp = tmp2; // Si esta asignada disco - memoria concuerdan.
+
+			tmp = tmp * div_virt;
+			tmp2 = tmp2 * div_virt;
+			for(int j = 0; j < pagina_size; ++j)
+			{
+				memoria[tmp + j] = disco[tmp2 + j];
+			}
+		}
+		/* El dato ya esta en memoria principal */
+		/* Extraemos direccion fisica */
+		dir_fisica = tabla[dir_fisica][2] * div_virt;
+		/* Agregamos el offset */
+		dir_fisica = dir_fisica + (ins_virtuales[i][0] % div_virt);
+		/* Cargamos los datos que hay en la memoria por si hay un miss en cache */
+		tmp = dir_fisica - (dir_fisica % div_fisica); // quitamos el offset de un bloque.
+		for (int j = 0; j < bloque_size; ++j)
+		{
+			movimiento[j] = memoria[tmp + j];
+		}
+		/* Lectura o escritura */
+		if (ins_virtuales[i][1] == 0)
+		{
+			respuesta_cache = mem_cache.read_cache(dir_fisica, movimiento);
+		}
+		else
+		{
+			respuesta_cache = mem_cache.write_cache(dir_fisica, movimiento, ins_virtuales[i][2]);
+		}
+
+		/* Analimamos la respuesta de la cache */
+		/* no fue un hit? */
+		if(respuesta_cache[0] != 1)
+			fallos_cache++;
+		/* hay que escribir en memoria, por write-back? */
+		if (respuesta_cache[1] == 1)
+		{
+			tmp = respuesta_cache[2]; // donde, escribir
+			tmp = tmp - (tmp % div_fisica) // quitamos el offset del bloque.
+			for (int j = 0; j < bloque_size; ++j)
+			{
+				memoria[tmp + j] = respuesta_cache[3+j];
+			}
+		}
+
 	}
 
 	/* Excribimos en los archivos */
