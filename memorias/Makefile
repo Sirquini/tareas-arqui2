@@ -2680,19 +2680,7 @@ cachegui.o: cachegui.cpp cachegui.h \
 		/usr/include/qt5/QtCore/QPair \
 		/usr/include/qt5/QtPrintSupport/qprintpreviewwidget.h \
 		/usr/include/qt5/QtPrintSupport/qtprintsupportversion.h \
-		ui_cachegui.h \
-		/usr/include/qt5/QtWidgets/QAction \
-		/usr/include/qt5/QtWidgets/QApplication \
-		/usr/include/qt5/QtWidgets/QButtonGroup \
-		/usr/include/qt5/QtWidgets/QHBoxLayout \
-		/usr/include/qt5/QtWidgets/QHeaderView \
-		/usr/include/qt5/QtWidgets/QLabel \
-		/usr/include/qt5/QtWidgets/QPushButton \
-		/usr/include/qt5/QtWidgets/QSpacerItem \
-		/usr/include/qt5/QtWidgets/QSpinBox \
-		/usr/include/qt5/QtWidgets/QTabWidget \
-		/usr/include/qt5/QtWidgets/QToolBar \
-		/usr/include/qt5/QtWidgets/QVBoxLayout
+		ui_cachegui.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o cachegui.o cachegui.cpp
 
 qcustomplot.o: qcustomplot.cpp qcustomplot.h \
