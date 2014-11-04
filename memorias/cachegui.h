@@ -6,6 +6,7 @@
 #include <QtCore>
 #include <QtGui>
 #include <iostream>
+#include "qcustomplot.h"
 
 namespace Ui {
 class cachegui;
