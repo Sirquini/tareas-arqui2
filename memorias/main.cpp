@@ -143,7 +143,7 @@ public:
 				result[2] = cache_fisica(posicion, bdir, boffset, mem[posicion][pos_reemplazo][2]);
 				for (int j = 3; j < result.size(); ++j)
 				{
-					result[i] = mem[posicion][pos_reemplazo][i];
+					result[j] = mem[posicion][pos_reemplazo][j];
 				}
 			}
 			mem[posicion][pos_reemplazo][0] = 1;
@@ -201,7 +201,7 @@ public:
 				result[2] = cache_fisica(posicion, bdir, boffset, mem[posicion][pos_reemplazo][2]);
 				for (int j = 3; j < result.size(); ++j)
 				{
-					result[i] = mem[posicion][pos_reemplazo][i];
+					result[j] = mem[posicion][pos_reemplazo][j];
 				}
 			}
 			mem[posicion][pos_reemplazo][0] = 1;
@@ -213,6 +213,7 @@ public:
 			}
 			mem[posicion][pos_reemplazo][3+offset] = escribir;
 		}
+
 		return result;
 	}
 
