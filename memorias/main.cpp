@@ -1,3 +1,5 @@
+#include "cachegui.h"
+#include <QApplication>
 #include <iostream>
 #include <vector>
 
@@ -22,9 +24,7 @@ public:
 	~cache();
 };
 
-
-
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
 	int bloques,
 		paginas,
@@ -35,8 +35,9 @@ int main(int argc, char const *argv[])
 		fallos_pagina,
 		fallos_cache;
 
+    QApplication a(argc, argv);
+    cachegui w;
+    w.show();
 
-
-	std::cout << "test memorias" << std::endl;
-	return 0;
+    return a.exec();
 }
