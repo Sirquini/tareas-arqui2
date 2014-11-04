@@ -108,6 +108,8 @@ public:
 			{
 				hit = true;
 				result[0] = 1;
+				
+				LFU_counter[posicion][i] += 1; // Para politica LFU
 				break;
 			}
 		}
@@ -161,9 +163,11 @@ public:
 			if(mem[posicion][i][2] == tag && mem[posicion][i][0] == 1)
 			{
 				hit = true;
-				result[0] = 1;
+				result[0] = 1; // Devolvemos el hit
 				mem[posicion][i][1] = 1; // Dirty
 				mem[posicion][i][3+offset] = escribir;
+
+				LFU_counter[posicion][i] += 1; // Para politica LFU
 				break;
 			}
 		}
