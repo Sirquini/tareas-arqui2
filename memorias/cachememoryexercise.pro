@@ -6,15 +6,17 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = cachememoryexercise
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        cachegui.cpp
+        cachegui.cpp \
+    qcustomplot.cpp
 
-HEADERS  += cachegui.h
+HEADERS  += cachegui.h \
+    qcustomplot.h
 
 FORMS    += cachegui.ui
