@@ -130,7 +130,6 @@ public:
 
         for (int i = 0; i < vias; ++i)
         {
-            std::cout << i << std::endl;
             /* Para aplicar LFU mas adelante */
             if(menor > LFU_counter[posicion][i])
             {
@@ -340,6 +339,9 @@ void cachegui::on_Generar_clicked()
         QString fallospagvir;
         fallospagvir = QString("La tasa de fallos es de: ")+ QString::number(fallospor3)+QString("%");
         QMessageBox::information(0, QString("Fallos Pagina Virtual"), fallospagvir, QMessageBox::Ok);
+        fallospor = (falloscalc.second/float(numeromemp)) * 100;
+        fallospagvir = QString("La tasa de fallos es de: ")+ QString::number(fallospor)+QString("%");
+        QMessageBox::information(0, QString("Fallos Cache"), fallospagvir, QMessageBox::Ok);
     }
 }
 
@@ -467,6 +469,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         /* No esta en memoria principal? */
         if(tabla[dir_fisica][0] == 0)
         {
+            std::cout << "Fallo Pagina!" << std::endl;
             tabla[dir_fisica][0] = 1;
             fallos_pagina++; // nuevo fallo de pagina
             tmp2 = tabla[dir_fisica][2]; // direccion disco
