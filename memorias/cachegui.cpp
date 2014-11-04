@@ -98,15 +98,15 @@ public:
         tag_pot = potencia(boffset + bdir);
         offset_pot = potencia(boffset);
         dir_pot = potencia(bdir);
-        std::cout << "Vias: " << vias << "\n";
-        std::cout << "Bloques: " << bloques << "\n";
-        std::cout << "bloque_size: " << bloque_size << "\n";
-        std::cout << "posiciones: " << posiciones << "\n";
-        std::cout << "boffset: " << boffset << "\n";
-        std::cout << "bdir: " << bdir << "\n";
-        std::cout << "tag_pot: " << tag_pot << "\n";
-        std::cout << "offset_pot: " << offset_pot << "\n";
-        std::cout << "dir_pot: " << dir_pot << "\n";
+        //std::cout << "Vias: " << vias << "\n";
+        //std::cout << "Bloques: " << bloques << "\n";
+        //std::cout << "bloque_size: " << bloque_size << "\n";
+        //std::cout << "posiciones: " << posiciones << "\n";
+        //std::cout << "boffset: " << boffset << "\n";
+        //std::cout << "bdir: " << bdir << "\n";
+        //std::cout << "tag_pot: " << tag_pot << "\n";
+        //std::cout << "offset_pot: " << offset_pot << "\n";
+        //std::cout << "dir_pot: " << dir_pot << "\n";
     }
 
     ~Cache()
@@ -139,7 +139,7 @@ public:
             /* Esta en la cache y es valido? */
             if(mem[posicion][i][2] == tag && mem[posicion][i][0] == 1)
             {
-                std::cout << "Hit Cache!" << std::endl;
+                //std::cout << "Hit Cache!" << std::endl;
                 hit = true;
                 result[0] = 1;
 
@@ -150,7 +150,7 @@ public:
         /* No lo encontro en cache? */
         if (!hit)
         {
-            std::cout << "Miss Cahce!" << std::endl;
+            //std::cout << "Miss Cahce!" << std::endl;
             result[0] = 0;
             /* Es dirty? */
             if (mem[posicion][pos_reemplazo][1] == 1)
@@ -198,7 +198,7 @@ public:
             /* Esta en la cache y es valido? */
             if(mem[posicion][i][2] == tag && mem[posicion][i][0] == 1)
             {
-                std::cout << "Hit Cache!" << std::endl;
+                //std::cout << "Hit Cache!" << std::endl;
                 hit = true;
                 result[0] = 1; // Devolvemos el hit
                 mem[posicion][i][1] = 1; // Dirty
@@ -211,7 +211,7 @@ public:
         /* No lo encontro en cache? */
         if (!hit)
         {
-            std::cout << "Miss Cahce!" << std::endl;
+            //std::cout << "Miss Cahce!" << std::endl;
             result[0] = 0;
             /* Es dirty? */
             if (mem[posicion][pos_reemplazo][1] == 1)
@@ -262,56 +262,63 @@ void cachegui::on_analisis_clicked()
     int numeromemp = ui->nmemp->value();
     int tampagina = ui->tampag->value();
     int tambloque = ui->tambloq->value();
+    // generate some data:
+    QVector<int> cachesize;  
+    QVector<double> x,y; 
+    x << 8 << 16 << 32 << 64 << 128;
+    cachesize << 16 << 32 << 64 << 128 << 256;
+    y << 0 << 2 << 4 << 6 << 8;
 
-    if(tampagina > 32)
-        QMessageBox::critical(0, QString("Error"),QString("El tamaño de pagina no puede superar los 32 bytes") , QMessageBox::Ok);
-    else if(numerovias > 0 && (bloquescache % numerovias) != 0)
-        QMessageBox::critical(0, QString("Error"),QString("El número de bloques debe ser divisible por el número de vías") , QMessageBox::Ok);
-    else if(tampagina > 0 && (1024 % tampagina) != 0)
-        QMessageBox::critical(0, QString("Error"),QString("El tamaño de pagina debe dividir al tamaño de la memoria principal que es un 1KB") , QMessageBox::Ok);
-    else if(bloquescache == 0 || numerovias == 0 || numeromemp == 0 || tampagina == 0 || tambloque == 0)
-        QMessageBox::critical(0, QString("Error"),QString("Le falta ingresar uno o más datos") , QMessageBox::Ok);      
-    else
-    {
-        // generate some data:
-        QVector<double> x,y; // initialize with entries 0..100
-        
+    std::pair<int, int> sim = simulacion(2, 8, 2, 100, 8);
+    y << sim.second;
+    y << 0 << 0<< 0<< 0;
+    ui->plot1->addGraph();
+    ui->plot1->graph(0)->setData(x, y);
+    QVector<QString> labels;
+    QVector<double> ticks;
+    ticks << 8 << 16 << 32 << 64 << 128 << 256;
+    ui->plot1->xAxis->setLabel("Tamaño del bloque");
+    ui->plot1->yAxis->setLabel("Tamaño de la cache");
+    labels << "8" << "16" << "32" << "64" << "128" << "256";
+    ui->plot1->xAxis->setAutoTicks(false);
+    ui->plot1->xAxis->setAutoTickLabels(false);
+    ui->plot1->xAxis->setTickVector(ticks);
+    ui->plot1->xAxis->setTickVectorLabels(labels);
+    ui->plot1->xAxis->setTickLabelRotation(60);
+    ui->plot1->xAxis->setSubTickCount(0);
+    ui->plot1->xAxis->setTickLength(0, 4);
+    ui->plot1->xAxis->grid()->setVisible(true);
+    ui->plot1->xAxis->setRange(0, 256);
+  
 
-        // create graph and assign data to it:
-        ui->plot1->addGraph();
-        ui->plot1->graph(0)->setData(x, y);
-        // give the axes some labels:
-        ui->plot1->xAxis->setLabel("Tamaño del bloque");
-        ui->plot1->yAxis->setLabel("Tamaño de la cache");
-        // set axes ranges, so we see all data:
-        ui->plot1->xAxis->setRange(-1, 1);
-        ui->plot1->yAxis->setRange(0, 1);
-        ui->plot1->replot();
+
+    ui->plot1->yAxis->setRange(0, 8);
+    ui->plot1->replot();
+    y.clear();
+
     
-        x.clear();
-        y.clear();
-        x.push_back(1);
-        for (int i = 2; bloquescache % i == 0 && i < bloquescache; i += 2)
-        {
-            x.push_back(i);
-        }
-        for (auto& via : x)
-        {
-            std::pair<int, int> falloscalc = simulacion(bloquescache, tambloque, via, numeromemp, tampagina);
-            y.push_back(falloscalc.second);
-        }
-        // create graph and assign data to it:
-        ui->plot2->addGraph();
-        ui->plot2->graph(0)->setData(x, y);
-        // give the axes some labels:
-        ui->plot2->xAxis->setLabel("Número de vías");
-        ui->plot2->yAxis->setLabel("Tamaño de la cache");
-        // set axes ranges, so we see all data:
-        ui->plot2->xAxis->setRange(-1, 1);
-        ui->plot2->yAxis->setRange(0, 1);
+    // create graph and assign data to it:
     
-        ui->plot2->replot();
-    }
+    // give the axes some labels:
+
+    // set axes ranges, so we see all data:
+
+
+    //x.clear();
+    //y.clear();
+    
+
+    // create graph and assign data to it:
+    ui->plot2->addGraph();
+    ui->plot2->graph(0)->setData(x, y);
+    // give the axes some labels:
+    ui->plot2->xAxis->setLabel("Número de vías");
+    ui->plot2->yAxis->setLabel("Tamaño de la cache");
+    // set axes ranges, so we see all data:
+    ui->plot2->xAxis->setRange(-1, 1);
+    ui->plot2->yAxis->setRange(0, 1);
+
+    ui->plot2->replot();
 }
 
 void cachegui::on_Generar_clicked()
@@ -350,14 +357,14 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
 {
     int paginas_disco, paginas_mem, fallos_pagina, fallos_cache, bits_offset, div_virt, div_fisica;
     
-    std::cout << "Numero de bloques: " << bloques << std::endl;
-    std::cout << "Tamano de bloque: " << bloque_size << std::endl;
-    std::cout << "Numero de vias: " << vias << std::endl;
-    std::cout << "Numero de accesos: " << accesos << std::endl;
-    std::cout << "Tamanio de pagina: " << pagina_size << std::endl;
+    //std::cout << "Numero de bloques: " << bloques << std::endl;
+    //std::cout << "Tamano de bloque: " << bloque_size << std::endl;
+    //std::cout << "Numero de vias: " << vias << std::endl;
+    //std::cout << "Numero de accesos: " << accesos << std::endl;
+    //std::cout << "Tamanio de pagina: " << pagina_size << std::endl;
     
 
-    std::cout << "Inicializando...";
+    //std::cout << "Inicializando...";
     std::random_device rseed; // Para numeros aleatorios
     std::mt19937 rgen(rseed()); // mersenne_twister
     std::uniform_int_distribution<int> idist(0, DIR_VIRUTALES - 1); // [0,4095]
@@ -382,8 +389,8 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
     bits_offset = bits_para(pagina_size);
     div_virt = potencia(bits_offset);// para posterior division
     div_fisica = potencia(bits_para(bloque_size));// para posterior division
-    std::cout << " Inicializacion terminada!" << std::endl;
-    std::cout << "Generando instrucciones..." << std::endl;
+    //std::cout << " Inicializacion terminada!" << std::endl;
+    //std::cout << "Generando instrucciones..." << std::endl;
     /* Generar instrucciones virtuales */
     for (int i = 0; i < accesos; ++i)
     {
@@ -391,8 +398,8 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         ins_virtuales[i][1] = odist(rgen);
         ins_virtuales[i][2] = ddist(rgen);
     }
-    std::cout << " Terminado!" << std::endl;
-    std::cout << "Generando tabla de traduccion..." << std::endl;
+    //std::cout << " Terminado!" << std::endl;
+    //std::cout << "Generando tabla de traduccion..." << std::endl;
     /* Generamos la tabla de traduccion */
     int contador;
     for (contador = 0; contador < accesos; ++contador)
@@ -417,7 +424,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
             tabla[tmp].push_back(contador); /* dir disco */
         }
     }
-    std::cout << " Terminado!" << std::endl;
+    //std::cout << " Terminado!" << std::endl;
     /* leemos la memoria y el disco */
     std::ifstream inputmem;
     std::ifstream inputdisc;
@@ -426,7 +433,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
     int valor_io;
     int contador_io = 0;
 
-    std::cout << "Leyendo memoria..." << std::endl;
+   //std::cout << "Leyendo memoria..." << std::endl;
     inputmem.open("memoria.txt", std::ifstream::in);
 
     while(inputmem >> valor_io)
@@ -435,13 +442,13 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         contador_io++;
     }
     inputmem.close();
-    std::cout << " Terminado!" << std::endl;
+    //std::cout << " Terminado!" << std::endl;
     if (contador_io == 0)
     {
         std::cout << "Memoria vacia, abortando!" << std::endl;
         return std::make_pair(0,0);
     }
-    std::cout << "Leyendo disco..." << std::endl;
+    //std::cout << "Leyendo disco..." << std::endl;
     inputdisc.open("disco.txt", std::ifstream::in);
 
     contador_io = 0;
@@ -451,13 +458,13 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         contador_io++;
     }
     inputdisc.close();
-    std::cout << " Terminado!" << std::endl;
+   // std::cout << " Terminado!" << std::endl;
     if (contador_io == 0)
     {
-        std::cout << "Disco vacio, abortando!" << std::endl;
+        //std::cout << "Disco vacio, abortando!" << std::endl;
         return std::make_pair(0,0);
     }
-    std::cout << "Procesando instrucciones..." << std::endl;
+    //std::cout << "Procesando instrucciones..." << std::endl;
     /* Iteramos en cada instruccion */
     int dir_fisica, tmp, tmp2;
     std::vector<int> movimiento (bloque_size,0);
@@ -469,7 +476,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         /* No esta en memoria principal? */
         if(tabla[dir_fisica][0] == 0)
         {
-            std::cout << "Fallo Pagina!" << std::endl;
+            //std::cout << "Fallo Pagina!" << std::endl;
             tabla[dir_fisica][0] = 1;
             fallos_pagina++; // nuevo fallo de pagina
             tmp2 = tabla[dir_fisica][2]; // direccion disco
@@ -504,12 +511,12 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         /* Lectura o escritura */
         if (ins_virtuales[i][1] == 0)
         {
-        std::cout << "Read" << std::endl;
+        //std::cout << "Read" << std::endl;
             respuesta_cache = mem_cache.read_cache(dir_fisica, movimiento);
         }
         else
         { 
-        std::cout << "Write" << std::endl;
+       // std::cout << "Write" << std::endl;
             respuesta_cache = mem_cache.write_cache(dir_fisica, movimiento, ins_virtuales[i][2]);
         }
 
@@ -520,7 +527,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         /* hay que escribir en memoria, por write-back? */
         if (respuesta_cache[1] == 1)
         {
-            std::cout << "write-back" << std::endl;
+            //std::cout << "write-back" << std::endl;
             tmp = respuesta_cache[2]; // donde, escribir
             tmp = tmp - (tmp % div_fisica); // quitamos el offset del bloque.
             for (int j = 0; j < bloque_size; ++j)
@@ -530,8 +537,8 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         }
 
     }
-    std::cout << " Terminado!" << std::endl;
-    std::cout << "Reescribiendo memoria..." << std::endl;
+    //std::cout << " Terminado!" << std::endl;
+    //std::cout << "Reescribiendo memoria..." << std::endl;
     /* Excribimos en los archivos */
     std::ofstream ofm ("memoria.txt", std::ofstream::out);
     for (int i = 0; i < POS_MEMORIA; ++i)
@@ -539,15 +546,15 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         ofm << memoria[i] << "\n";
     }
     ofm.close();
-    std::cout << "Terminado!" << std::endl;
-    std::cout << "Reescribiendo disco..." << std::endl;
+    //std::cout << "Terminado!" << std::endl;
+    //std::cout << "Reescribiendo disco..." << std::endl;
     std::ofstream ofd ("disco.txt", std::ofstream::out);
     for (int i = 0; i < POS_DISCO; ++i)
     {
         ofd << disco[i] << "\n";
     }
     ofd.close();
-    std::cout << "Terminado!" << std::endl;
+    //std::cout << "Terminado!" << std::endl;
 
     return std::make_pair(fallos_pagina, fallos_cache);
 }
