@@ -98,15 +98,16 @@ public:
         tag_pot = potencia(boffset + bdir);
         offset_pot = potencia(boffset);
         dir_pot = potencia(bdir);
-        //std::cout << "Vias: " << vias << "\n";
-        //std::cout << "Bloques: " << bloques << "\n";
-        //std::cout << "bloque_size: " << bloque_size << "\n";
-        //std::cout << "posiciones: " << posiciones << "\n";
-        //std::cout << "boffset: " << boffset << "\n";
-        //std::cout << "bdir: " << bdir << "\n";
-        //std::cout << "tag_pot: " << tag_pot << "\n";
-        //std::cout << "offset_pot: " << offset_pot << "\n";
-        //std::cout << "dir_pot: " << dir_pot << "\n";
+        std::cout << "Vias: " << vias << "\n";
+        std::cout << "Bloques: " << bloques << "\n";
+        std::cout << "bloque_size: " << bloque_size << "\n";
+        std::cout << "posiciones: " << posiciones << "\n";
+        std::cout << "boffset: " << boffset << "\n";
+        std::cout << "bdir: " << bdir << "\n";
+        std::cout << "tag_pot: " << tag_pot << "\n";
+        std::cout << "offset_pot: " << offset_pot << "\n";
+        std::cout << "dir_pot: " << dir_pot << "\n";
+        std::cout << "mem size: " << mem.size() << " x " <<  mem[0].size() << " x " << mem[0][0].size() << std::endl;
     }
 
     ~Cache()
@@ -126,10 +127,11 @@ public:
         pos_reemplazo = 0;
         menor = LFU_counter[posicion][0];
         hit = false;
-        //std::cout << "Cache Read" << std::endl;
-
+        std::cout << "Cache Read" << std::endl;
+        std::cout << posicion << std::endl;
         for (int i = 0; i < vias; ++i)
         {
+            std::cout << "En ciclo" << std::endl;
             /* Para aplicar LFU mas adelante */
             if(menor > LFU_counter[posicion][i])
             {
@@ -139,22 +141,24 @@ public:
             /* Esta en la cache y es valido? */
             if(mem[posicion][i][2] == tag && mem[posicion][i][0] == 1)
             {
-                //std::cout << "Hit Cache!" << std::endl;
+                std::cout << "Hit Cache!" << std::endl;
                 hit = true;
                 result[0] = 1;
 
                 LFU_counter[posicion][i] += 1; // Para politica LFU
+                std::cout << ":(" << std::endl;
                 break;
             }
         }
         /* No lo encontro en cache? */
         if (!hit)
         {
-            //std::cout << "Miss Cahce!" << std::endl;
+            std::cout << "Miss Cache!" << std::endl;
             result[0] = 0;
             /* Es dirty? */
             if (mem[posicion][pos_reemplazo][1] == 1)
             {
+
                 result[1] = 1;
                 result[2] = cache_fisica(posicion, bdir, boffset, mem[posicion][pos_reemplazo][2]);
                 for (int j = 3; j < result.size(); ++j)
@@ -163,6 +167,7 @@ public:
                 }
             }
             mem[posicion][pos_reemplazo][0] = 1;
+            std::cout << "Pos" << pos_reemplazo << std::endl;
             mem[posicion][pos_reemplazo][1] = 0;
             mem[posicion][pos_reemplazo][2] = tag;
             for (int j = 0; j < dato.size(); ++j)
@@ -183,7 +188,7 @@ public:
         tag = direccion / tag_pot;
         offset = direccion % offset_pot;
         pos_reemplazo = 0;
-        std::cout << posicion << std::endl;
+        //std::cout << posicion << std::endl;
         menor = LFU_counter[posicion][0];
         hit = false;
         //std::cout << "Cache Write" << std::endl;
@@ -211,7 +216,7 @@ public:
         /* No lo encontro en cache? */
         if (!hit)
         {
-            //std::cout << "Miss Cahce!" << std::endl;
+           //std::cout << "Miss Cahce!" << std::endl;
             result[0] = 0;
             /* Es dirty? */
             if (mem[posicion][pos_reemplazo][1] == 1)
@@ -357,14 +362,14 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
 {
     int paginas_disco, paginas_mem, fallos_pagina, fallos_cache, bits_offset, div_virt, div_fisica;
     
-    //std::cout << "Numero de bloques: " << bloques << std::endl;
-    //std::cout << "Tamano de bloque: " << bloque_size << std::endl;
-    //std::cout << "Numero de vias: " << vias << std::endl;
-    //std::cout << "Numero de accesos: " << accesos << std::endl;
-    //std::cout << "Tamanio de pagina: " << pagina_size << std::endl;
+    std::cout << "Numero de bloques: " << bloques << std::endl;
+    std::cout << "Tamano de bloque: " << bloque_size << std::endl;
+    std::cout << "Numero de vias: " << vias << std::endl;
+    std::cout << "Numero de accesos: " << accesos << std::endl;
+    std::cout << "Tamanio de pagina: " << pagina_size << std::endl;
     
 
-    //std::cout << "Inicializando...";
+    std::cout << "Inicializando...";
     std::random_device rseed; // Para numeros aleatorios
     std::mt19937 rgen(rseed()); // mersenne_twister
     std::uniform_int_distribution<int> idist(0, DIR_VIRUTALES - 1); // [0,4095]
@@ -383,14 +388,17 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
     /* Inicializacion */
     paginas_disco = POS_DISCO / pagina_size;
     paginas_mem = POS_MEMORIA / pagina_size;
-    std::uniform_int_distribution<int> mdist(0, paginas_mem); // [0,paginas_memoria]
+    std::uniform_int_distribution<int> mdist(0, paginas_mem-1); // [0,paginas_memoria]
     fallos_pagina = 0;
     fallos_cache = 0;
     bits_offset = bits_para(pagina_size);
     div_virt = potencia(bits_offset);// para posterior division
     div_fisica = potencia(bits_para(bloque_size));// para posterior division
-    //std::cout << " Inicializacion terminada!" << std::endl;
-    //std::cout << "Generando instrucciones..." << std::endl;
+    std::cout << " Inicializacion terminada!" << std::endl;
+
+    std::cout << "Paginas Memoria: " << paginas_mem << std::endl;
+    std::cout << "Paginas Disco: " << paginas_disco << std::endl;
+    std::cout << "Generando instrucciones..." << std::endl;
     /* Generar instrucciones virtuales */
     for (int i = 0; i < accesos; ++i)
     {
@@ -398,8 +406,8 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         ins_virtuales[i][1] = odist(rgen);
         ins_virtuales[i][2] = ddist(rgen);
     }
-    //std::cout << " Terminado!" << std::endl;
-    //std::cout << "Generando tabla de traduccion..." << std::endl;
+    std::cout << " Terminado!" << std::endl;
+    std::cout << "Generando tabla de traduccion..." << std::endl;
     /* Generamos la tabla de traduccion */
     int contador;
     for (contador = 0; contador < accesos; ++contador)
@@ -416,7 +424,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
     for (; contador < accesos; ++contador)
     {
         int tmp = ins_virtuales[contador][0]/div_virt;
-        if(tabla.size() > (paginas_mem + paginas_disco)) break;
+        if(tabla.size() >= (paginas_mem + paginas_disco)) break;
         if(tabla.count(tmp) == 0)
         {
             tabla[tmp].push_back(0); /* 1 - memoria principal */
@@ -424,7 +432,8 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
             tabla[tmp].push_back(contador); /* dir disco */
         }
     }
-    //std::cout << " Terminado!" << std::endl;
+    std::cout << " Terminado!" << std::endl;
+    std::cout << " Tamaño tabla: " << tabla.size() << std::endl;
     /* leemos la memoria y el disco */
     std::ifstream inputmem;
     std::ifstream inputdisc;
@@ -433,7 +442,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
     int valor_io;
     int contador_io = 0;
 
-   //std::cout << "Leyendo memoria..." << std::endl;
+   std::cout << "Leyendo memoria..." << std::endl;
     inputmem.open("memoria.txt", std::ifstream::in);
 
     while(inputmem >> valor_io)
@@ -442,13 +451,13 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         contador_io++;
     }
     inputmem.close();
-    //std::cout << " Terminado!" << std::endl;
+    std::cout << " Terminado!" << std::endl;
     if (contador_io == 0)
     {
         std::cout << "Memoria vacia, abortando!" << std::endl;
         return std::make_pair(0,0);
     }
-    //std::cout << "Leyendo disco..." << std::endl;
+    std::cout << "Leyendo disco..." << std::endl;
     inputdisc.open("disco.txt", std::ifstream::in);
 
     contador_io = 0;
@@ -458,13 +467,13 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         contador_io++;
     }
     inputdisc.close();
-   // std::cout << " Terminado!" << std::endl;
+    std::cout << " Terminado!" << std::endl;
     if (contador_io == 0)
     {
-        //std::cout << "Disco vacio, abortando!" << std::endl;
+        std::cout << "Disco vacio, abortando!" << std::endl;
         return std::make_pair(0,0);
     }
-    //std::cout << "Procesando instrucciones..." << std::endl;
+    std::cout << "Procesando instrucciones..." << std::endl;
     /* Iteramos en cada instruccion */
     int dir_fisica, tmp, tmp2;
     std::vector<int> movimiento (bloque_size,0);
@@ -516,7 +525,7 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         }
         else
         { 
-       // std::cout << "Write" << std::endl;
+        //::cout << "Write" << std::endl;
             respuesta_cache = mem_cache.write_cache(dir_fisica, movimiento, ins_virtuales[i][2]);
         }
 
@@ -537,8 +546,8 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         }
 
     }
-    //std::cout << " Terminado!" << std::endl;
-    //std::cout << "Reescribiendo memoria..." << std::endl;
+    std::cout << " Terminado!" << std::endl;
+    std::cout << "Reescribiendo memoria..." << std::endl;
     /* Excribimos en los archivos */
     std::ofstream ofm ("memoria.txt", std::ofstream::out);
     for (int i = 0; i < POS_MEMORIA; ++i)
@@ -546,15 +555,17 @@ std::pair<int, int> simulacion(int bloques, int bloque_size, int vias, int acces
         ofm << memoria[i] << "\n";
     }
     ofm.close();
-    //std::cout << "Terminado!" << std::endl;
-    //std::cout << "Reescribiendo disco..." << std::endl;
+    std::cout << "Terminado!" << std::endl;
+    std::cout << "Reescribiendo disco..." << std::endl;
     std::ofstream ofd ("disco.txt", std::ofstream::out);
     for (int i = 0; i < POS_DISCO; ++i)
     {
         ofd << disco[i] << "\n";
     }
     ofd.close();
-    //std::cout << "Terminado!" << std::endl;
+    std::cout << "Terminado!" << std::endl;
+
+    std::cout << fallos_pagina << " " << fallos_cache << std::endl;
 
     return std::make_pair(fallos_pagina, fallos_cache);
 }
